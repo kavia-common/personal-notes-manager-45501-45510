@@ -1,82 +1,100 @@
-# Lightweight React Template for KAVIA
+# Ocean Notes - React + Supabase
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+A simple notes application allowing users to create, view, and manage personal notes. This frontend uses React and Supabase for data storage.
 
 ## Features
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+- Ocean Professional theme (blue primary with amber accents)
+- Sidebar list with note titles/snippets
+- Editor with debounced saves
+- Create and delete notes
+- Light/Dark theme toggle
 
 ## Getting Started
 
-In the project directory, you can run:
+1) Install dependencies
 
-### `npm start`
-
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-### `npm test`
-
-Launches the test runner in interactive watch mode.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-## Customization
-
-### Colors
-
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
+```bash
+npm install
 ```
 
-### Components
+2) Create a .env file in notes_frontend with:
 
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
+```
+REACT_APP_SUPABASE_URL=YOUR_SUPABASE_URL
+REACT_APP_SUPABASE_KEY=YOUR_SUPABASE_ANON_KEY
+```
 
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
+See .env.example for required variables.
 
-## Learn More
+3) Start the app
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+```
 
-### Code Splitting
+The app runs at http://localhost:3000.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Supabase Setup
 
-### Analyzing the Bundle Size
+- Create a new Supabase project and obtain the Project URL and anon public API key.
+- Create the table "notes" with the following SQL:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```sql
+create table if not exists public.notes (
+  id uuid primary key default gen_random_uuid(),
+  title text,
+  content text,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
 
-### Making a Progressive Web App
+-- Row Level Security
+alter table public.notes enable row level security;
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+-- For demo purposes, allow full access to anon role (adjust for auth-enabled apps)
+create policy "Enable read for all" on public.notes
+for select
+to anon
+using (true);
 
-### Advanced Configuration
+create policy "Enable insert for all" on public.notes
+for insert
+to anon
+with check (true);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+create policy "Enable update for all" on public.notes
+for update
+to anon
+using (true);
 
-### Deployment
+create policy "Enable delete for all" on public.notes
+for delete
+to anon
+using (true);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Note: For production, implement proper auth and RLS policies tied to user_id.
 
-### `npm run build` fails to minify
+## Scripts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- npm start - Start dev server
+- npm test - Run tests
+- npm run build - Build for production
+
+## Environment Variables
+
+- REACT_APP_SUPABASE_URL - Supabase project URL
+- REACT_APP_SUPABASE_KEY - Supabase anon public key
+
+Do not commit real credentials. Use environment variables.
+
+## Folder Structure
+
+- src/components - UI components (Topbar, Sidebar, NoteEditor, EmptyState)
+- src/services - Supabase CRUD logic for notes
+- src/lib - Supabase client helper
+
+## Style
+
+The app implements the "Ocean Professional" theme using CSS variables in src/App.css. Adjust colors or radii as needed.
